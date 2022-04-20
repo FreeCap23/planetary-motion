@@ -1,6 +1,8 @@
 #include <SFML/Graphics.hpp>
-
+#include <iostream>
+#include "Planet.cpp"
 #define AA_LEVEL 8U
+#define G 6.67*std::pow(10, -11)
 
 int main(int argc, char const** argv) {
     // Create the main window
@@ -22,6 +24,20 @@ int main(int argc, char const** argv) {
     sf::Text fpsCounter("Placeholder text. If this doesn't change, the app is frozen", font, 16U);
     fpsCounter.setPosition(0,0);
     sf::Clock clock;
+
+    sf::Text notToScale("Not to scale.", font, 12U);
+    notToScale.setPosition(5, window.getSize().y - 17);
+
+    Planet sun(30.f, 30, 1.989*std::pow(10,30));
+    sun.setOrigin(sun.getRadius(), sun.getRadius());
+    sun.setPosition(400, 300);
+    sun.setFillColor(sf::Color::Yellow);
+
+    Planet earth(5.f, 30, 5.972*std::pow(10,24));
+    earth.setOrigin(earth.getRadius(), earth.getRadius());
+    earth.setPosition(400, 150);
+    earth.setFillColor(sf::Color::Cyan);
+    
 
     // Start the game loop
     while (window.isOpen()) {
@@ -47,6 +63,10 @@ int main(int argc, char const** argv) {
         fpsCounter.setString(sf::String(std::to_string(framerate)));
         clock.restart();
         window.draw(fpsCounter);
+        window.draw(notToScale);
+
+        window.draw(earth);
+        window.draw(sun);
 
         // Update the window
         window.display();
