@@ -6,6 +6,8 @@
 class Planet : public sf::CircleShape {
 public :
     explicit Planet(const float& radius = 0.f, const int& pointCount = 30, const long double& mass = 10) : m_radius(radius), m_pointCount(pointCount), m_mass(mass) {
+        m_force = sf::Vector2f(0, 0);
+        m_isAlive = true;
         update();
     }
 
@@ -13,9 +15,38 @@ public :
         m_mass = mass;
     }
 
+    long double getMass() {
+        return m_mass;
+    }
+
+    void addForce(const sf::Vector2f force) {
+        m_force += force;
+    }
+
+    void setForce(const sf::Vector2f force) {
+        m_force = force;
+    }
+
+    void multForce(const sf::Vector2f force) {
+        m_force.x = m_force.x * force.x;
+        m_force.y = m_force.y * force.y;
+    }
+
+    sf::Vector2f getForce() {
+        return m_force;
+    }
+
     void setRadius(const float& radius) {
         m_radius = radius;
         update();
+    }
+
+    void destroy() {
+        m_isAlive = false;
+    }
+
+    bool isAlive() {
+        return m_isAlive;
     }
 
     void setPointCount(const int pointCount) {
@@ -40,6 +71,8 @@ public :
     }
 
 private :
+    bool m_isAlive;
+    sf::Vector2f m_force;
     long double m_mass;
     std::size_t m_pointCount;
     float m_radius;

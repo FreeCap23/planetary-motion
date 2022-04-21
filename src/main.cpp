@@ -3,6 +3,10 @@
 #include "Planet.cpp"
 #define AA_LEVEL 8U
 #define G 6.67*std::pow(10, -11)
+//#define EARTH_MASS 5.972*std::pow(10,24)
+#define EARTH_MASS 50000000
+#define SUN_MASS 1665271300000
+//#define SUN_MASS 1.989*std::pow(10,30)
 
 int main(int argc, char const** argv) {
     // Create the main window
@@ -23,21 +27,20 @@ int main(int argc, char const** argv) {
     // And add the placeholder text for the framerate
     sf::Text fpsCounter("Placeholder text. If this doesn't change, the app is frozen", font, 16U);
     fpsCounter.setPosition(0,0);
-    sf::Clock clock;
+    sf::Clock frameClock;
 
     sf::Text notToScale("Not to scale.", font, 12U);
     notToScale.setPosition(5, window.getSize().y - 17);
 
-    Planet sun(30.f, 30, 1.989*std::pow(10,30));
+    Planet sun(30.f, 30, SUN_MASS);
     sun.setOrigin(sun.getRadius(), sun.getRadius());
     sun.setPosition(400, 300);
     sun.setFillColor(sf::Color::Yellow);
 
-    Planet earth(5.f, 30, 5.972*std::pow(10,24));
+    Planet earth(5.f, 30, EARTH_MASS);
     earth.setOrigin(earth.getRadius(), earth.getRadius());
-    earth.setPosition(400, 150);
+    earth.setPosition(100, 150);
     earth.setFillColor(sf::Color::Cyan);
-    
 
     // Start the game loop
     while (window.isOpen()) {
@@ -48,20 +51,83 @@ int main(int argc, char const** argv) {
             if (event.type == sf::Event::Closed) {
                 window.close();
             }
-
             // Escape pressed: exit
             if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape) {
                 window.close();
             }
+            // Down arrow: Add force down
+            if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Up) {
+                earth.addForce(sf::Vector2f(20, 0));
+            }
+            // Up arrow: Add force up
+            if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Down) {
+                earth.addForce(sf::Vector2f(-20, 0));
+            }
+            // Up arrow: Add force right
+            if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Right) {
+                earth.addForce(sf::Vector2f(0, 20));
+            }
+            // Left arrow: Add force left
+            if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Left) {
+                earth.addForce(sf::Vector2f(0, -20));
+            }
+        }
+        // Calculate framerate
+        float framerate = 1.f / frameClock.getElapsedTime().asSeconds();
+        fpsCounter.setString(sf::String(std::to_string(framerate)));
+        frameClock.restart();
+
+        // Check collision with the window
+        // Check collision with the right side
+        if (earth.getPosition().x >= window.getSize().x - earth.getRadius()) {
+            earth.multForce(sf::Vector2f(-1, 1));
+        }
+        // Check collision with the bottom
+        if (earth.getPosition().y >= window.getSize().y - earth.getRadius()) {
+            earth.multForce(sf::Vector2f(1, -1));
+        }
+        // Check collision with the left side
+        if (earth.getPosition().x <= earth.getRadius()) {
+            earth.multForce(sf::Vector2f(-1, 1));
+        }
+        // Check collision with the top side
+        if (earth.getPosition().y <= earth.getRadius()) {
+            earth.multForce(sf::Vector2f(1, -1));
         }
 
-        // Clear screen
-        window.clear(sf::Color(28, 28, 28));
+        // The actual formula needs a square root over everything, however
+        // when we use r in calculating the gravitational pull of the planets,
+        // we square it, so it cancels out.
+        float r = pow(earth.getPosition().x - sun.getPosition().x, 2) + pow(earth.getPosition().y - sun.getPosition().y, 2);
 
-        // Calculate and show framerate
-        float framerate = 1.f / clock.getElapsedTime().asSeconds();
-        fpsCounter.setString(sf::String(std::to_string(framerate)));
-        clock.restart();
+        // We'll use r for calculating the collision with the Sun as well
+        if (r <= earth.getRadius() * 2 + sun.getRadius() * 2) {
+            std::cout << "Collided with the Sun.\n";
+            earth.destroy();
+        }
+        float earthAngle = atan2(
+            earth.getPosition().y - sun.getPosition().y,
+            earth.getPosition().x - sun.getPosition().x
+            );
+        float sunAngle = atan2(
+            sun.getPosition().y - earth.getPosition().y,
+            sun.getPosition().x - earth.getPosition().x
+            );
+        float F = G * earth.getMass() * sun.getMass() / r;
+
+        earth.setForce(sf::Vector2f(
+            (earth.getForce().x + F * cos(sunAngle)) / framerate,
+            (earth.getForce().y + F * sin(sunAngle)) / framerate
+            ));
+        //earth.addForce(sf::Vector2f(0, 30));
+        std::cout << "F is " << F << "\nForce on x is " << earth.getForce().x << "\nForce on y is " << earth.getForce().y << std::endl;
+
+        // earth.addForce(sf::Vector2f(0, 9.81f * 1/framerate)); // Gravity on earth; Used for learning
+        earth.move(sf::Vector2f(earth.getForce().x * 1/framerate, earth.getForce().y * 1/framerate));
+
+        // Clear screen
+        window.clear(sf::Color(20, 20, 20));
+
         window.draw(fpsCounter);
         window.draw(notToScale);
 
