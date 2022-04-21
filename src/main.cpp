@@ -56,14 +56,14 @@ int main(int argc, char const** argv) {
                 window.close();
             }
             // Down arrow: Add force down
-            if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Up) {
+            if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Down) {
                 earth.addForce(sf::Vector2f(20, 0));
             }
             // Up arrow: Add force up
-            if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Down) {
+            if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Up) {
                 earth.addForce(sf::Vector2f(-20, 0));
             }
-            // Up arrow: Add force right
+            // Right arrow: Add force right
             if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Right) {
                 earth.addForce(sf::Vector2f(0, 20));
             }
