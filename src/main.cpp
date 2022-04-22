@@ -16,16 +16,12 @@ int main(int argc, char const** argv) {
 
     // Set the Icon
     sf::Image icon;
-    if (!icon.loadFromFile("src/icon.png")) {
-        return EXIT_FAILURE;
-    }
+    if (!icon.loadFromFile("src/icon.png")) { return EXIT_FAILURE; }
     window.setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
 
     // Set the font
     sf::Font font;
-    if (!font.loadFromFile("src/sansation.ttf")) {
-        return EXIT_FAILURE;
-    }
+    if (!font.loadFromFile("src/sansation.ttf")) { return EXIT_FAILURE; }
     // And add the placeholder text for the framerate
     sf::Text fpsCounter("Placeholder text. If this doesn't change, the app is frozen", font, 16U);
     fpsCounter.setPosition(0,0);
