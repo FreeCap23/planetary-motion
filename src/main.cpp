@@ -83,24 +83,6 @@ int main(int argc, char const** argv) {
         fpsCounter.setString(sf::String(std::to_string(framerate)));
         frameClock.restart();
 
-        // Check collision with the window
-        // Check collision with the right side
-        if (earth.getPosition().x >= window.getSize().x - earth.getRadius()) {
-            earth.multForce(sf::Vector2f(-1, 1));
-        }
-        // Check collision with the bottom
-        if (earth.getPosition().y >= window.getSize().y - earth.getRadius()) {
-            earth.multForce(sf::Vector2f(1, -1));
-        }
-        // Check collision with the left side
-        if (earth.getPosition().x <= earth.getRadius()) {
-            earth.multForce(sf::Vector2f(-1, 1));
-        }
-        // Check collision with the top side
-        if (earth.getPosition().y <= earth.getRadius()) {
-            earth.multForce(sf::Vector2f(1, -1));
-        }
-
         // The actual formula needs a square root over everything, however
         // when we use r in calculating the gravitational pull of the planets,
         // we square it, so it cancels out.
