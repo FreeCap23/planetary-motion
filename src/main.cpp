@@ -3,14 +3,16 @@
 #include "Planet.cpp"
 #define AA_LEVEL 8U
 #define G 6.67*std::pow(10, -11)
-//#define EARTH_MASS 5.972*std::pow(10,24)
-#define EARTH_MASS 50000000
-#define SUN_MASS 1665271300000
-//#define SUN_MASS 1.989*std::pow(10,30)
+//#define EARTH_MASS 50000000
+//#define SUN_MASS 1665271300000
+#define EARTH_MASS 5.972f * pow(10, 24)
+#define SUN_MASS 1.989f * pow(10, 30)
+// Mass of Earth in real life is 5.972 * 10^24 kg
+// Mass of the Sun in real life is 1.989 * 10^30 kg
 
 int main(int argc, char const** argv) {
     // Create the main window
-    sf::RenderWindow window(sf::VideoMode(800, 600), "Planets", 7U, sf::ContextSettings(0U, 0U, AA_LEVEL));
+    sf::RenderWindow window(sf::VideoMode(800, 800), "Planets", 7U, sf::ContextSettings(0U, 0U, AA_LEVEL));
 
     // Set the Icon
     sf::Image icon;
@@ -28,18 +30,22 @@ int main(int argc, char const** argv) {
     sf::Text fpsCounter("Placeholder text. If this doesn't change, the app is frozen", font, 16U);
     fpsCounter.setPosition(0,0);
     sf::Clock frameClock;
+    
+    sf::View camera(sf::Vector2f(0, 0), sf::Vector2f(400000000, -400000000));
+    window.setView(camera);
 
     sf::Text notToScale("Not to scale.", font, 12U);
     notToScale.setPosition(5, window.getSize().y - 17);
 
-    Planet sun(30.f, 30, SUN_MASS);
+    // Radius of the planets isn't accurate, but it shouldn't matter
+    Planet sun(6963400*2, SUN_MASS);
     sun.setOrigin(sun.getRadius(), sun.getRadius());
-    sun.setPosition(400, 300);
+    sun.setPosition(window.getSize().x / 2, window.getSize().y / 2);
     sun.setFillColor(sf::Color::Yellow);
 
-    Planet earth(5.f, 30, EARTH_MASS);
+    Planet earth(1274200*2, EARTH_MASS);
     earth.setOrigin(earth.getRadius(), earth.getRadius());
-    earth.setPosition(100, 150);
+    earth.setPosition(sun.getPosition().x - 150000000, 0);
     earth.setFillColor(sf::Color::Cyan);
 
     // Start the game loop
@@ -100,11 +106,6 @@ int main(int argc, char const** argv) {
         // we square it, so it cancels out.
         float r = pow(earth.getPosition().x - sun.getPosition().x, 2) + pow(earth.getPosition().y - sun.getPosition().y, 2);
 
-        // We'll use r for calculating the collision with the Sun as well
-        if (r <= earth.getRadius() * 2 + sun.getRadius() * 2) {
-            std::cout << "Collided with the Sun.\n";
-            earth.destroy();
-        }
         float earthAngle = atan2(
             earth.getPosition().y - sun.getPosition().y,
             earth.getPosition().x - sun.getPosition().x

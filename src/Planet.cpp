@@ -5,8 +5,9 @@
 // Mass is measured in kg
 class Planet : public sf::CircleShape {
 public :
-    explicit Planet(const float& radius = 0.f, const int& pointCount = 30, const long double& mass = 10) : m_radius(radius), m_pointCount(pointCount), m_mass(mass) {
+    explicit Planet(const double& radius = 0.f, const long double& mass = 10) : m_radius(radius), m_mass(mass) {
         m_force = sf::Vector2f(0, 0);
+        m_pointCount = 30;
         m_isAlive = true;
         update();
     }
@@ -36,7 +37,7 @@ public :
         return m_force;
     }
 
-    void setRadius(const float& radius) {
+    void setRadius(const double& radius) {
         m_radius = radius;
         update();
     }
@@ -54,7 +55,7 @@ public :
         update();
     }
 
-    const float& getRadius() const {
+    const double& getRadius() const {
         return m_radius;
     }
 
@@ -75,5 +76,5 @@ private :
     sf::Vector2f m_force;
     long double m_mass;
     std::size_t m_pointCount;
-    float m_radius;
+    double m_radius;
 };
