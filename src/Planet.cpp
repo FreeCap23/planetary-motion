@@ -9,6 +9,8 @@ public :
         m_force = sf::Vector2f(0, 0);
         m_pointCount = 30;
         m_isAlive = true;
+        m_accel[0] = 0;
+        m_accel[1] = 0;
         update();
     }
 
@@ -35,6 +37,24 @@ public :
 
     sf::Vector2f getForce() {
         return m_force;
+    }
+
+    void addAccel(const double accel[]) {
+        m_accel[0] += accel[0];
+        m_accel[1] += accel[1];
+    }
+
+    double getAccelX() {
+        return m_accel[0];
+    }
+
+    double getAccelY() {
+        return m_accel[1];
+    }
+
+    void setAccel(const double accel[]) {
+        m_accel[0] = accel[0] / m_mass;
+        m_accel[1] = accel[1] / m_mass;
     }
 
     void setRadius(const double& radius) {
@@ -72,6 +92,7 @@ public :
     }
 
 private :
+    double m_accel[2];
     bool m_isAlive;
     sf::Vector2f m_force;
     long double m_mass;

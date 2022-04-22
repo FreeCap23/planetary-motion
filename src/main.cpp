@@ -33,17 +33,22 @@ int main(int argc, char const** argv) {
     sf::Text notToScale("Not to scale.", font, 12U);
     notToScale.setPosition(5, window.getSize().y - 17);
 
+    Planet* planets[2];
+
     // Radius of the planets isn't accurate, but it shouldn't matter
     Planet sun(6963400*2, SUN_MASS);
+    planets[0] = &sun;
     sun.setOrigin(sun.getRadius(), sun.getRadius());
     sun.setPosition(window.getSize().x / 2, window.getSize().y / 2);
     sun.setFillColor(sf::Color::Yellow);
 
     Planet earth(1274200*2, EARTH_MASS);
+    planets[1] = &earth;
     earth.setOrigin(earth.getRadius(), earth.getRadius());
-    earth.setPosition(sun.getPosition().x - 150000000, 0);
+    earth.setPosition(sun.getPosition().x - 150000000, 30000000);
     earth.setFillColor(sf::Color::Cyan);
 
+    float timeScale = 500;
     // Start the game loop
     while (window.isOpen()) {
         // Process events
@@ -78,31 +83,20 @@ int main(int argc, char const** argv) {
         float framerate = 1.f / frameClock.getElapsedTime().asSeconds();
         fpsCounter.setString(sf::String(std::to_string(framerate)));
         frameClock.restart();
+        framerate = framerate / timeScale;
 
-        // The actual formula needs a square root over everything, however
-        // when we use r in calculating the gravitational pull of the planets,
-        // we square it, so it cancels out.
-        float r = pow(earth.getPosition().x - sun.getPosition().x, 2) + pow(earth.getPosition().y - sun.getPosition().y, 2);
-
-        float earthAngle = atan2(
-            earth.getPosition().y - sun.getPosition().y,
-            earth.getPosition().x - sun.getPosition().x
-            );
-        float sunAngle = atan2(
+        // r is the distance between the planets, squared
+        double r = pow(earth.getPosition().x - sun.getPosition().x, 2) + pow(earth.getPosition().y - sun.getPosition().y, 2);
+        // F is the force acting on the planet
+        double F = G * sun.getMass() * earth.getMass() / r;
+        double angle = atan2(
             sun.getPosition().y - earth.getPosition().y,
             sun.getPosition().x - earth.getPosition().x
-            );
-        float F = G * earth.getMass() * sun.getMass() / r;
-
-        earth.setForce(sf::Vector2f(
-            (earth.getForce().x + F * cos(sunAngle)) / framerate,
-            (earth.getForce().y + F * sin(sunAngle)) / framerate
-            ));
-        //earth.addForce(sf::Vector2f(0, 30));
-        std::cout << "F is " << F << "\nForce on x is " << earth.getForce().x << "\nForce on y is " << earth.getForce().y << std::endl;
-
-        // earth.addForce(sf::Vector2f(0, 9.81f * 1/framerate)); // Gravity on earth; Used for learning
-        earth.move(sf::Vector2f(earth.getForce().x * 1/framerate, earth.getForce().y * 1/framerate));
+        );
+        double accel[2] = {F * cos(angle), F * sin(angle)};
+        earth.setAccel(accel);
+        std::printf("F is %f, earth's position is: (%f, %f)\n", F, earth.getPosition().x, earth.getPosition().y);
+        earth.move(sf::Vector2f(earth.getAccelX() / framerate, earth.getAccelY() / framerate));
 
         // Clear screen
         window.clear(sf::Color(20, 20, 20));
@@ -110,8 +104,9 @@ int main(int argc, char const** argv) {
         window.draw(fpsCounter);
         window.draw(notToScale);
 
-        window.draw(earth);
-        window.draw(sun);
+        for (int i = 0; i < 2; i++) {
+            window.draw(*planets[i]);
+        }
 
         // Update the window
         window.display();
