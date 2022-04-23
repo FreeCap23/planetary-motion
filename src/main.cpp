@@ -60,8 +60,6 @@ int main(int argc, char const** argv) {
     earth.setPosition(sun.getPosition().x - 150000000, 30000000);
     earth.setFillColor(sf::Color::Cyan);
 
-    sf::Vector2<double> impulse(1, 1);
-
     float timeScale = 1500;
     // Start the game loop
     while (window.isOpen()) {
@@ -92,30 +90,14 @@ int main(int argc, char const** argv) {
                     lineStartPos.y - lineEndPos.y,
                     lineStartPos.x - lineEndPos.x
                 );
-                double r = sqrt(pow(earth.getPosition().x - sun.getPosition().x, 2) + pow(earth.getPosition().y - sun.getPosition().y, 2));
-                // This variable is used to control the amount of force applied when the mouse button is released
-                float factor = 2 * pow(10, 21);
-                impulse += sf::Vector2<double>(r * cos(angle) * factor, r * sin(angle) * factor);
             }
         }
+        
         // Calculate framerate
         float framerate = 1.f / frameClock.getElapsedTime().asSeconds();
         fpsCounter.setString(sf::String(std::to_string(framerate)));
         frameClock.restart();
         framerate = framerate / timeScale;
-
-        // r is the distance between the planets, squared
-        double r = pow(earth.getPosition().x - sun.getPosition().x, 2) + pow(earth.getPosition().y - sun.getPosition().y, 2);
-        // F is the force acting on the planet
-        double F = G * sun.getMass() * earth.getMass() / r;
-        double angle = atan2(
-            sun.getPosition().y - earth.getPosition().y,
-            sun.getPosition().x - earth.getPosition().x
-        );
-        sf::Vector2<double> gravityForce(F * cos(angle) / earth.getMass(), F * sin(angle) / earth.getMass());
-        sf::Vector2<double> impulseForce(impulse.x / (earth.getMass()), impulse.y / (earth.getMass()));
-        earth.setForce(sf::Vector2<double>(gravityForce.x + impulseForce.x, gravityForce.y + impulseForce.y));
-        earth.move(earth.getForce().x / framerate, earth.getForce().y / framerate);
 
         // Line thing for launching Earth
         if (shouldDrawLine) {
