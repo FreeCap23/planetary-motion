@@ -10,6 +10,11 @@
 // Mass of Earth in real life is 5.972 * 10^24 kg
 // Mass of the Sun in real life is 1.989 * 10^30 kg
 
+bool planetCollision(Planet planet1, Planet planet2) {
+    float r = sqrt(pow(planet1.getPosition().x - planet2.getPosition().x, 2) + pow(planet1.getPosition().y - planet2.getPosition().y, 2));
+    return r <= planet1.getRadius() + planet2.getRadius();
+}
+
 int main(int argc, char const** argv) {
     // Create the main window
     sf::RenderWindow window(sf::VideoMode(800, 800), "Planets", 7U, sf::ContextSettings(0U, 0U, AA_LEVEL));
@@ -57,7 +62,7 @@ int main(int argc, char const** argv) {
 
     sf::Vector2<double> impulse(1, 1);
 
-    float timeScale = 500;
+    float timeScale = 1500;
     // Start the game loop
     while (window.isOpen()) {
         // Process events
@@ -131,6 +136,9 @@ int main(int argc, char const** argv) {
             float length = sqrt(pow(lineStartPos.x - worldPos.x, 2) + pow(lineStartPos.y - worldPos.y, 2));
             line.setSize(sf::Vector2f(length, line.getSize().y));
         }
+
+        if (planetCollision(earth, sun))
+            earth.setPosition(sun.getPosition().x - 150000000, 30000000);
 
         // Clear screen
         window.clear(sf::Color(20, 20, 20));
