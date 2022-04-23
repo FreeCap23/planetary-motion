@@ -1,39 +1,41 @@
-#include <SFML/Graphics.hpp>
-#include <cmath>
+#include "Planet.hpp"
 
-#define PI 3.141592654f
-// Mass is measured in kg
-class Planet : public sf::CircleShape {
-public :
-    explicit Planet(const double radius = 0.f, const long double mass = 10) : m_radius(radius), m_mass(mass) {
-        m_pointCount = 30;
-        m_isAlive = true;
-        update();
-    }
+Planet::Planet() {
+    m_pointCount = 30;
+    m_radius = 10.f;
+    update();
+}
 
-    void setPointCount(const int pointCount) {
-        m_pointCount = pointCount;
-        update();
-    }
+double Planet::getRadius() {
+    return m_radius;
+}
 
-    const double& getRadius() const {
-        return m_radius;
-    }
+void Planet::setRadius(double radius) {
+    m_radius = radius;
+    update();
+}
 
-    virtual std::size_t getPointCount() const {
-        return m_pointCount;
-    }
+void Planet::setMass(double mass) {
+    m_mass = mass;
+}
 
-    virtual sf::Vector2f getPoint(std::size_t index) const {
-        float angle = index * 2 * PI / getPointCount();
-        float x = std::cos(angle) * m_radius;
-        float y = std::sin(angle) * m_radius;
+double Planet::getMass() {
+    return m_mass;
+}
 
-        return sf::Vector2f(m_radius + x, m_radius + y);
-    }
+void Planet::setPointCount(int pointCount) {
+    m_pointCount = pointCount;
+    update();
+}
 
-private :
-    double m_radius;
-    long double m_mass;
-    std::size_t m_pointCount;
+std::size_t Planet::getPointCount() const {
+    return m_pointCount;
+}
+
+sf::Vector2f Planet::getPoint(std::size_t index) const {
+    float angle = index * 2 * PI / getPointCount();
+    float x = std::cos(angle) * m_radius;
+    float y = std::sin(angle) * m_radius;
+
+    return sf::Vector2f(m_radius + x, m_radius + y);
 };

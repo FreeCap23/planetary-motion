@@ -5,7 +5,10 @@ CC = g++
 SFMLDEPS = -lsfml-audio-d -lsfml-graphics-d -lsfml-system-d -lsfml-window-d
 
 # Source files
-SOURCES = src/main.cpp
+SOURCES = src/main.cpp src/Planet.cpp
+
+# Object files
+OBJ = main.o Planet.o
 
 # Target file
 TARGET = planets
@@ -14,7 +17,7 @@ all:
 	if [ ! -d "./build" ]; then \
 		mkdir ./build; \
 	fi
-	$(CC) $(SOURCES) -c && $(CC) $(SFMLDEPS) main.o -o build/$(TARGET)
+	$(CC) $(SOURCES) -c && $(CC) $(SFMLDEPS) $(OBJ) -o build/$(TARGET)
 
 run: all
 	./build/$(TARGET)

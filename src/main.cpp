@@ -1,6 +1,6 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
-#include "Planet.cpp"
+#include "Planet.hpp"
 #define AA_LEVEL 8U
 #define G 6.67*std::pow(10, -11)
 //#define EARTH_MASS 50000000
@@ -47,15 +47,18 @@ int main(int argc, char const** argv) {
 
     Planet* planets[2];
 
-    // Radius of the planets isn't accurate, but it shouldn't matter
-    Planet sun(6963400*2, SUN_MASS);
+    Planet sun;
     planets[0] = &sun;
+    sun.setRadius(13926800);
+    sun.setMass(SUN_MASS);
     sun.setOrigin(sun.getRadius(), sun.getRadius());
     sun.setPosition(window.getSize().x / 2, window.getSize().y / 2);
     sun.setFillColor(sf::Color::Yellow);
 
-    Planet earth(1274200*2, EARTH_MASS);
+    Planet earth;
     planets[1] = &earth;
+    earth.setRadius(2548400);
+    earth.setMass(EARTH_MASS);
     earth.setOrigin(earth.getRadius(), earth.getRadius());
     earth.setPosition(sun.getPosition().x - 150000000, 30000000);
     earth.setFillColor(sf::Color::Cyan);
