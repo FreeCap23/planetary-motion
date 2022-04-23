@@ -33,6 +33,13 @@ int main(int argc, char const** argv) {
     sf::Text notToScale("Not to scale.", font, 12U);
     notToScale.setPosition(5, window.getSize().y - 17);
 
+    sf::Vector2f lineStartPos;
+    sf::Vector2f lineEndPos;
+    sf::RectangleShape line(sf::Vector2f(100000000, 500000));
+    line.setOrigin(0, line.getSize().y / 2);
+    line.setFillColor(sf::Color(255, 255, 255, 0));
+    bool shouldDrawLine = false;
+
     Planet* planets[2];
 
     // Radius of the planets isn't accurate, but it shouldn't matter
@@ -62,21 +69,23 @@ int main(int argc, char const** argv) {
             if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape) {
                 window.close();
             }
-            // Down arrow: Add force down
-            if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Down) {
-                earth.addForce(sf::Vector2f(20, 0));
+            // Left click: Initialize the line and start drawing it
+            if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left) {
+                shouldDrawLine = true;
+                sf::Vector2i pixelPos = sf::Mouse::getPosition(window);
+                lineStartPos = window.mapPixelToCoords(pixelPos);
             }
-            // Up arrow: Add force up
-            if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Up) {
-                earth.addForce(sf::Vector2f(-20, 0));
-            }
-            // Right arrow: Add force right
-            if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Right) {
-                earth.addForce(sf::Vector2f(0, 20));
-            }
-            // Left arrow: Add force left
-            if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Left) {
-                earth.addForce(sf::Vector2f(0, -20));
+            // Release left click: Make line invisible and save the mouse position
+            if (event.type == sf::Event::MouseButtonReleased && event.mouseButton.button == sf::Mouse::Left) {
+                line.setFillColor(sf::Color(255, 255, 255, 0));
+                sf::Vector2i pixelPos = sf::Mouse::getPosition(window);
+                lineEndPos = window.mapPixelToCoords(pixelPos);
+                shouldDrawLine = false;
+                double angle = atan2(
+                    lineEndPos.y - lineStartPos.y,
+                    lineEndPos.x - lineStartPos.x
+                );
+                double r = sqrt(pow(earth.getPosition().x - sun.getPosition().x, 2) + pow(earth.getPosition().y - sun.getPosition().y, 2));
             }
         }
         // Calculate framerate
@@ -93,10 +102,29 @@ int main(int argc, char const** argv) {
             sun.getPosition().y - earth.getPosition().y,
             sun.getPosition().x - earth.getPosition().x
         );
-        double accel[2] = {F * cos(angle), F * sin(angle)};
-        earth.setAccel(accel);
-        std::printf("F is %f, earth's position is: (%f, %f)\n", F, earth.getPosition().x, earth.getPosition().y);
-        earth.move(sf::Vector2f(earth.getAccelX() / framerate, earth.getAccelY() / framerate));
+
+        earth.setForce(sf::Vector2f(F * cos(angle) / earth.getMass(), F * sin(angle) / earth.getMass()));
+        earth.move(earth.getForce().x / framerate, earth.getForce().y / framerate);
+
+        // Line thing for launching Earth
+        if (shouldDrawLine) {
+            // Initialize the line
+            line.setFillColor(sf::Color::White);
+            sf::Vector2i pixelPos = sf::Mouse::getPosition(window);
+            sf::Vector2f worldPos = window.mapPixelToCoords(pixelPos);
+            line.setPosition(worldPos);
+
+            // Rotate the line towards the original point
+            double angle = atan2(
+                lineStartPos.y - worldPos.y,
+                lineStartPos.x - worldPos.x
+            );
+            line.setRotation(angle * 180 / PI);
+
+            // Resize the line according to its correct length
+            float length = sqrt(pow(lineStartPos.x - worldPos.x, 2) + pow(lineStartPos.y - worldPos.y, 2));
+            line.setSize(sf::Vector2f(length, line.getSize().y));
+        }
 
         // Clear screen
         window.clear(sf::Color(20, 20, 20));
@@ -107,6 +135,8 @@ int main(int argc, char const** argv) {
         for (int i = 0; i < 2; i++) {
             window.draw(*planets[i]);
         }
+
+        window.draw(line);
 
         // Update the window
         window.display();
