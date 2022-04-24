@@ -1,12 +1,19 @@
 #ifndef PI
 #define PI 3.141592654f
+#define UNIVERSAL_CONSTANT 6.67*std::pow(10, -11)
 #endif
 #include <SFML/Graphics.hpp>
 #include <cmath>
 
 class Planet : public sf::CircleShape {
 public:
-    explicit Planet();
+    Planet(sf::Vector2f initialVelocity);
+
+    Planet(float initialVelocityX, float initialVelocityY);
+
+    void calculateVelocity(std::vector<Planet*> planets, float deltaTime);
+
+    sf::Vector2f getVelocity();
 
     double getRadius();
 
@@ -25,5 +32,6 @@ public:
 private:
     double m_radius;
     long double m_mass;
+    sf::Vector2f m_velocity;
     std::size_t m_pointCount;
 };

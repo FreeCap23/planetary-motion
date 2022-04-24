@@ -1,9 +1,35 @@
 #include "Planet.hpp"
 
-Planet::Planet() {
+Planet::Planet(sf::Vector2f initialVelocity) {
+    m_velocity = initialVelocity;
     m_pointCount = 30;
-    m_radius = 10.f;
     update();
+}
+
+Planet::Planet(float initialVelocityX, float initialVelocityY) {
+    m_velocity.x = initialVelocityX;
+    m_velocity.y = initialVelocityY;
+    m_pointCount = 30;
+    update();
+}
+
+void Planet::calculateVelocity(std::vector<Planet*> planets, float deltaTime) {
+    for (int i = 0; i < planets.size(); i++) {
+        if (planets[i] != this) {
+            double square_r = pow(planets[i]->getPosition().x - this->getPosition().x, 2) + pow(planets[i]->getPosition().y - this->getPosition().y, 2);
+            double angle = atan2(
+                planets[i]->getPosition().y - this->getPosition().y,
+                planets[i]->getPosition().x - this->getPosition().x
+            );
+            double F = UNIVERSAL_CONSTANT * planets[i]->getMass() * m_mass / square_r;
+            sf::Vector2f acceleration(F * cos(angle) / m_mass, F * sin(angle) / m_mass);
+            m_velocity += acceleration * deltaTime;
+        }
+    }
+}
+
+sf::Vector2f Planet::getVelocity() {
+    return m_velocity;
 }
 
 double Planet::getRadius() {

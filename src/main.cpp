@@ -3,8 +3,6 @@
 #include "Planet.hpp"
 #define AA_LEVEL 8U
 #define G 6.67*std::pow(10, -11)
-//#define EARTH_MASS 50000000
-//#define SUN_MASS 1665271300000
 #define EARTH_MASS 5.972f * pow(10, 24)
 #define SUN_MASS 1.989f * pow(10, 30)
 // Mass of Earth in real life is 5.972 * 10^24 kg
@@ -45,25 +43,27 @@ int main(int argc, char const** argv) {
     line.setFillColor(sf::Color(255, 255, 255, 0));
     bool shouldDrawLine = false;
 
-    Planet* planets[2];
+    std::vector<Planet*> planets;
 
-    Planet sun;
-    planets[0] = &sun;
+    Planet sun(0, 0);
+    planets.push_back(&sun);
     sun.setRadius(13926800);
     sun.setMass(SUN_MASS);
     sun.setOrigin(sun.getRadius(), sun.getRadius());
     sun.setPosition(window.getSize().x / 2, window.getSize().y / 2);
     sun.setFillColor(sf::Color::Yellow);
 
-    Planet earth;
-    planets[1] = &earth;
+    Planet earth(400000, 400000);
+    planets.push_back(&earth);
     earth.setRadius(2548400);
     earth.setMass(EARTH_MASS);
     earth.setOrigin(earth.getRadius(), earth.getRadius());
     earth.setPosition(sun.getPosition().x - 150000000, 30000000);
     earth.setFillColor(sf::Color::Cyan);
 
-    float timeScale = 1500;
+    // Inverse speed of time. A value of 2 will make time pass 2x slower
+    float timeScale = 1000000;
+
     // Start the game loop
     while (window.isOpen()) {
         // Process events
@@ -96,11 +96,16 @@ int main(int argc, char const** argv) {
             }
         }
         
-        // Calculate framerate
-        float framerate = 1.f / frameClock.getElapsedTime().asSeconds();
-        fpsCounter.setString(sf::String(std::to_string(framerate)));
+        // Calculate time difference between last frame and current frame
+        float deltaTime = 1.f / frameClock.getElapsedTime().asSeconds();
+        fpsCounter.setString(sf::String(std::to_string(deltaTime)));
         frameClock.restart();
-        framerate = framerate / timeScale;
+        deltaTime = deltaTime / timeScale;
+
+        for (int i = 0; i < planets.size(); i++) {
+            planets[i]->calculateVelocity(planets, deltaTime);
+            planets[i]->move(planets[i]->getVelocity() * deltaTime);
+        }
 
         // Line thing for launching Earth
         if (shouldDrawLine) {
@@ -121,9 +126,6 @@ int main(int argc, char const** argv) {
             float length = sqrt(pow(lineStartPos.x - worldPos.x, 2) + pow(lineStartPos.y - worldPos.y, 2));
             line.setSize(sf::Vector2f(length, line.getSize().y));
         }
-
-        if (planetCollision(earth, sun))
-            earth.setPosition(sun.getPosition().x - 150000000, 30000000);
 
         // Clear screen
         window.clear(sf::Color(20, 20, 20));

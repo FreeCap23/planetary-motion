@@ -23,4 +23,4 @@ run: all
 	./build/$(TARGET)
 
 clean:
-	$(RM) -r main.o build
+	$(RM) -r $(OBJ) build
