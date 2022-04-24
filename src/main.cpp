@@ -29,9 +29,6 @@ int main(int argc, char const** argv) {
     sf::View camera(sf::Vector2f(0, 0), sf::Vector2f(400000000, -400000000));
     window.setView(camera);
 
-    sf::Text notToScale("Not to scale.", font, 12U);
-    notToScale.setPosition(5, window.getSize().y - 17);
-
     sf::Vector2f lineStartPos;
     sf::Vector2f lineEndPos;
     sf::RectangleShape line(sf::Vector2f(100000000, 500000));
@@ -135,8 +132,6 @@ int main(int argc, char const** argv) {
 
         // Clear screen
         window.clear(sf::Color(20, 20, 20));
-
-        window.draw(notToScale);
 
         for (int i = 0; i < 2; i++) {
             window.draw(*planets[i]);
