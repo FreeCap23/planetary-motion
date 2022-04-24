@@ -25,10 +25,6 @@ int main(int argc, char const** argv) {
     // Set the font
     sf::Font font;
     if (!font.loadFromFile("src/sansation.ttf")) { return EXIT_FAILURE; }
-    // And add the placeholder text for the framerate
-    sf::Text fpsCounter("Placeholder text. If this doesn't change, the app is frozen", font, 16U);
-    fpsCounter.setPosition(0,0);
-    sf::Clock frameClock;
     
     sf::View camera(sf::Vector2f(0, 0), sf::Vector2f(400000000, -400000000));
     window.setView(camera);
@@ -62,7 +58,10 @@ int main(int argc, char const** argv) {
     earth.setFillColor(sf::Color::Cyan);
 
     // Inverse speed of time. A value of 2 will make time pass 2x slower
-    float timeScale = 1000000;
+    float timeScale = 2000000;
+
+    sf::Clock timePassed;
+    sf::Clock frameClock;
 
     // Start the game loop
     while (window.isOpen()) {
@@ -98,9 +97,14 @@ int main(int argc, char const** argv) {
         
         // Calculate time difference between last frame and current frame
         float deltaTime = 1.f / frameClock.getElapsedTime().asSeconds();
-        fpsCounter.setString(sf::String(std::to_string(deltaTime)));
         frameClock.restart();
         deltaTime = deltaTime / timeScale;
+
+        if (timePassed.getElapsedTime().asSeconds() > 0.25f) {
+            sf::String windowTitle((std::string("Planet simulation [").append(std::to_string((int)(deltaTime * timeScale)))).append(" FPS]"));
+            window.setTitle(windowTitle);
+            timePassed.restart();
+        }
 
         for (int i = 0; i < planets.size(); i++) {
             planets[i]->calculateVelocity(planets, deltaTime);
@@ -127,10 +131,11 @@ int main(int argc, char const** argv) {
             line.setSize(sf::Vector2f(length, line.getSize().y));
         }
 
+        std::printf("Time passed: %f\n", timePassed.getElapsedTime().asSeconds());
+
         // Clear screen
         window.clear(sf::Color(20, 20, 20));
 
-        window.draw(fpsCounter);
         window.draw(notToScale);
 
         for (int i = 0; i < 2; i++) {
