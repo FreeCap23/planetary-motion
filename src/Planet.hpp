@@ -13,6 +13,8 @@ public:
 
     void calculateVelocity(std::vector<Planet*> planets, float deltaTime);
 
+    void addVelocity(sf::Vector2f force);
+
     sf::Vector2f getVelocity();
 
     double getRadius();

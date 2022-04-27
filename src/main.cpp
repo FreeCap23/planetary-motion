@@ -2,7 +2,6 @@
 #include <iostream>
 #include "Planet.hpp"
 #define AA_LEVEL 8U
-#define G 6.67*std::pow(10, -11)
 #define EARTH_MASS 5.972f * pow(10, 24)
 #define SUN_MASS 1.989f * pow(10, 30)
 // Mass of Earth in real life is 5.972 * 10^24 kg
@@ -46,14 +45,6 @@ int main(int argc, char const** argv) {
     sun.setPosition(window.getSize().x / 2, window.getSize().y / 2);
     sun.setFillColor(sf::Color::Yellow);
 
-    Planet earth(400000, 400000);
-    planets.push_back(&earth);
-    earth.setRadius(2548400);
-    earth.setMass(EARTH_MASS);
-    earth.setOrigin(earth.getRadius(), earth.getRadius());
-    earth.setPosition(sun.getPosition().x - 150000000, 30000000);
-    earth.setFillColor(sf::Color::Cyan);
-
     // Inverse speed of time. A value of 2 will make time pass 2x slower
     float timeScale = 2000000;
 
@@ -89,23 +80,39 @@ int main(int argc, char const** argv) {
                     lineStartPos.y - lineEndPos.y,
                     lineStartPos.x - lineEndPos.x
                 );
+                float distance = sqrt(pow(lineStartPos.x - lineEndPos.x, 2) + pow(lineStartPos.y - lineEndPos.y, 2));
+                // Variable to control how much or how little you have to pull
+                // the mouse to launch the planet
+                int sensitivity = 100;
+                sf::Vector2f velocity(distance * cos(angle) / sensitivity, distance * sin(angle) / sensitivity);
+
+                planets.push_back(new Planet(velocity));
+                size_t size = planets.size() - 1;
+                planets[size]->setRadius(2548400);
+                planets[size]->setMass(EARTH_MASS);
+                planets[size]->setOrigin(planets[size]->getRadius(), planets[size]->getRadius());
+                planets[size]->setPosition(lineStartPos);
+                planets[size]->setFillColor(sf::Color::Cyan);
+                planets[size]->addVelocity(velocity);
             }
         }
-        
+
         // Calculate time difference between last frame and current frame
         float deltaTime = 1.f / frameClock.getElapsedTime().asSeconds();
         frameClock.restart();
         deltaTime = deltaTime / timeScale;
-
+        
         if (timePassed.getElapsedTime().asSeconds() > 0.25f) {
             sf::String windowTitle((std::string("Planet simulation [").append(std::to_string((int)(deltaTime * timeScale)))).append(" FPS]"));
             window.setTitle(windowTitle);
             timePassed.restart();
         }
 
-        for (int i = 0; i < planets.size(); i++) {
-            planets[i]->calculateVelocity(planets, deltaTime);
-            planets[i]->move(planets[i]->getVelocity() * deltaTime);
+        if (planets.size() > 1) {
+            for (size_t i = 0; i < planets.size(); i++) {
+                planets[i]->calculateVelocity(planets, deltaTime);
+                planets[i]->move(planets[i]->getVelocity() * deltaTime);
+            }
         }
 
         // Line thing for launching Earth
@@ -128,12 +135,10 @@ int main(int argc, char const** argv) {
             line.setSize(sf::Vector2f(length, line.getSize().y));
         }
 
-        std::printf("Time passed: %f\n", timePassed.getElapsedTime().asSeconds());
-
         // Clear screen
         window.clear(sf::Color(20, 20, 20));
 
-        for (int i = 0; i < 2; i++) {
+        for (size_t i = 0; i < planets.size(); i++) {
             window.draw(*planets[i]);
         }
 

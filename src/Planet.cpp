@@ -28,6 +28,11 @@ void Planet::calculateVelocity(std::vector<Planet*> planets, float deltaTime) {
     }
 }
 
+void Planet::addVelocity(sf::Vector2f force) {
+    sf::Vector2f acceleration = sf::Vector2f(force.x, force.y);
+    m_velocity += acceleration;
+}
+
 sf::Vector2f Planet::getVelocity() {
     return m_velocity;
 }
