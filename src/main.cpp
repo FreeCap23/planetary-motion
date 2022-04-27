@@ -44,6 +44,7 @@ int main(int argc, char const** argv) {
     sun.setOrigin(sun.getRadius(), sun.getRadius());
     sun.setPosition(window.getSize().x / 2, window.getSize().y / 2);
     sun.setFillColor(sf::Color::Yellow);
+    sun.indestructible = true;
 
     // Inverse speed of time. A value of 2 will make time pass 2x slower
     float timeScale = 2000000;
@@ -135,6 +136,19 @@ int main(int argc, char const** argv) {
             line.setSize(sf::Vector2f(length, line.getSize().y));
         }
 
+        // Detect collision between planets
+        for (size_t i = 0; i < planets.size(); i++)
+            for (size_t j = 0; j < planets.size(); j++)
+                if (planetCollision(*planets[i], *planets[j]) && i != j) {
+                    int removeToNotGetAllocationError = 0;
+                    if (!planets[i]->indestructible) {
+                        planets.erase(planets.begin() + i);
+                        removeToNotGetAllocationError++;
+                    }
+                    if (!planets[j]->indestructible)
+                        planets.erase(planets.begin() + j - removeToNotGetAllocationError);
+                }
+                
         // Clear screen
         window.clear(sf::Color(20, 20, 20));
 

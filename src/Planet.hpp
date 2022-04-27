@@ -31,6 +31,9 @@ public:
 
     virtual sf::Vector2f getPoint(std::size_t index) const;
 
+public:
+    bool indestructible;
+
 private:
     double m_radius;
     long double m_mass;

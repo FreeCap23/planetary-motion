@@ -3,6 +3,7 @@
 Planet::Planet(sf::Vector2f initialVelocity) {
     m_velocity = initialVelocity;
     m_pointCount = 30;
+    indestructible = false;
     update();
 }
 
