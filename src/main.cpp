@@ -1,5 +1,6 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
+#include <random>
 #include "Planet.hpp"
 #define AA_LEVEL 8U
 #define EARTH_MASS 5.972f * pow(10, 24)
@@ -87,13 +88,25 @@ int main(int argc, char const** argv) {
                 int sensitivity = 100;
                 sf::Vector2f velocity(distance * cos(angle) / sensitivity, distance * sin(angle) / sensitivity);
 
+                // Generate a random color
+                // Setup random number generator
+                std::random_device dev;
+                std::mt19937 rng(dev());
+                std::uniform_int_distribution<std::mt19937::result_type> getRandomValue(0, 255);
+                // Generate random R, G and B values between 0 and 255
+                unsigned int red = getRandomValue(rng);
+                unsigned int green = getRandomValue(rng);
+                unsigned int blue = getRandomValue(rng);
+
+                sf::Color color(red, green, blue, 255);
+
                 planets.push_back(new Planet(velocity));
                 size_t size = planets.size() - 1;
                 planets[size]->setRadius(2548400);
                 planets[size]->setMass(EARTH_MASS);
                 planets[size]->setOrigin(planets[size]->getRadius(), planets[size]->getRadius());
                 planets[size]->setPosition(lineStartPos);
-                planets[size]->setFillColor(sf::Color::Cyan);
+                planets[size]->setFillColor(color);
                 planets[size]->addVelocity(velocity);
             }
         }
