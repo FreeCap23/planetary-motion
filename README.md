@@ -2,7 +2,9 @@
 Simulate a solar system in this game built in C++ and SFML.
 
 ## Demo video
-https://user-images.githubusercontent.com/62378314/224494908-b0d68b93-990f-4146-bcdf-653c73fe1487.mp4
+https://user-images.githubusercontent.com/62378314/224495524-5ed0c264-46d6-47e1-8b82-6e1759107cb5.mp4
+
+
 
 
 ### How to play
